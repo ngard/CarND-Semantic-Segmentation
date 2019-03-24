@@ -144,7 +144,7 @@ def run():
     #  https://www.cityscapes-dataset.com/
 
     batch_size = 20
-    epochs = 10
+    epochs = 5
 
     correct_label = tf.placeholder(tf.float32,[None, None, None, num_classes])
     learning_rate = tf.placeholder(tf.float32)
