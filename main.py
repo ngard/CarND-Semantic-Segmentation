@@ -51,17 +51,17 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
-    layer8 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, 1, padding='SAME',
+    layer8 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, 1, padding='SAME', activation=tf.nn.relu,
                              kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     layer9 = tf.layers.conv2d_transpose(layer8,num_classes, (2,2), (2,2), padding='SAME',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3)) + \
-             tf.layers.conv2d(vgg_layer4_out, num_classes, 1, 1, padding='SAME',
+             tf.layers.conv2d(vgg_layer4_out, num_classes, 1, 1, padding='SAME', activation=tf.nn.relu,
                               kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     layer10 = tf.layers.conv2d_transpose(layer9,num_classes, (2,2), (2,2), padding='SAME',
                                          kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3)) + \
-              tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='SAME',
+              tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='SAME', activation=tf.nn.relu,
                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
 
     return tf.layers.conv2d_transpose(layer10,num_classes, (8,8), (8,8), padding='SAME',
