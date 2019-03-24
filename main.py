@@ -105,12 +105,20 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
         print("epoch:"+str(epoch+1))
         rate_learning = 0.001/(epoch+1)
         print("rate_learning:"+str(rate_learning))
-        batch = 1
+        batch = 0
+        images_validation = []
+        labels_validation = []
         for images,labels in get_batches_fn(batch_size):
+            if batch == 0: # Make the first batch as Validation set
+                images_validation = images
+                labels_validation = labels
+                batch = 1
+                continue
             print("batch:"+str(batch))
-            batch += 1
-            none,loss = sess.run([train_op, cross_entropy_loss], feed_dict = {input_image:images, correct_label:labels, learning_rate:rate_learning, keep_prob:0.5})
+            sess.run(train_op, feed_dict = {input_image:images, correct_label:labels, learning_rate:rate_learning, keep_prob:0.5})
+            loss = sess.run(cross_entropy_loss, feed_dict = {input_image:images_validation, correct_label:labels_validation, keep_prob:1.0})
             print("loss:"+str(loss))
+            batch += 1
 
 tests.test_train_nn(train_nn)
 
