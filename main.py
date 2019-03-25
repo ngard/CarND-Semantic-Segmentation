@@ -52,23 +52,30 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     """
 
     activation_function = tf.nn.relu
+    kernel_initializer_function = tf.truncated_normal_initializer(stddev=1e-2)
     kernel_regularizer_function = tf.contrib.layers.l2_regularizer(1e-3)
 
     # TODO: Implement function
     layer8 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
+                              kernel_initializer=kernel_initializer_function,
                               kernel_regularizer=kernel_regularizer_function)
 
     layer9 = tf.layers.conv2d_transpose(layer8,num_classes, (2,2), (2,2), padding='SAME',
+                                        kernel_initializer=kernel_initializer_function,
                                         kernel_regularizer=kernel_regularizer_function) + \
              tf.layers.conv2d(vgg_layer4_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
+                              kernel_initializer=kernel_initializer_function,
                               kernel_regularizer=kernel_regularizer_function)
 
     layer10 = tf.layers.conv2d_transpose(layer9,num_classes, (2,2), (2,2), padding='SAME',
+                                         kernel_initializer=kernel_initializer_function,
                                          kernel_regularizer=kernel_regularizer_function) + \
               tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
+                               kernel_initializer=kernel_initializer_function,
                                kernel_regularizer=kernel_regularizer_function)
 
     return tf.layers.conv2d_transpose(layer10,num_classes, (8,8), (8,8), padding='SAME',
+                                      kernel_initializer=kernel_initializer_function,
                                       kernel_regularizer=kernel_regularizer_function)
 tests.test_layers(layers)
 
