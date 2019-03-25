@@ -101,7 +101,8 @@ tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate):
+             correct_label, keep_prob, learning_rate,
+             runs_dir="", data_dir="", image_shape=None, logits=None):
     """
     Train neural network and print out the loss during training.
     :param sess: TF Session
@@ -136,6 +137,8 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             loss = sess.run(cross_entropy_loss, feed_dict = {input_image:images_validation, correct_label:labels_validation, keep_prob:1.0})
             print("loss:"+str(loss))
             batch += 1
+        if logits is not None:
+            helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
 tests.test_train_nn(train_nn)
 
@@ -176,7 +179,8 @@ def run():
 
         # TODO: Train NN using the train_nn function
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-                 correct_label, keep_prob, learning_rate)
+                 correct_label, keep_prob, learning_rate,
+                 runs_dir, data_dir, image_shape, logits)
 
         # TODO: Save inference data using helper.save_inference_samples
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
