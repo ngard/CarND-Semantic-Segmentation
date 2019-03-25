@@ -83,7 +83,7 @@ def gen_batch_function(data_folder, image_shape):
 	:param image_shape: Tuple - Shape of image
 	:return:
 	"""
-	def get_batches_fn(batch_size):
+	def get_batches_fn(batch_size, enable_augmentation=False):
 		"""
 		Create batches of training data
 		:param batch_size: Batch Size
@@ -95,6 +95,9 @@ def gen_batch_function(data_folder, image_shape):
 			re.sub(r'_(lane|road)_', '_', os.path.basename(path)): path
 			for path in glob(os.path.join(data_folder, 'gt_image_2', '*_road_*.png'))}
 		background_color = np.array([255, 0, 0])
+
+		if enable_augmentation:
+			batch_size //= 2
 
 		# Shuffle training data
 		random.shuffle(image_paths)
@@ -115,6 +118,9 @@ def gen_batch_function(data_folder, image_shape):
 
 				images.append(image)
 				gt_images.append(gt_image)
+				if enable_augmentation:
+					images.append(image[:, ::-1, :])
+					gt_images.append(gt_image[:, ::-1, :])
 
 			yield np.array(images), np.array(gt_images)
 	return get_batches_fn
