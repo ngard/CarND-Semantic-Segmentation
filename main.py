@@ -137,8 +137,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             loss = sess.run(cross_entropy_loss, feed_dict = {input_image:images_validation, correct_label:labels_validation, keep_prob:1.0})
             print("loss:"+str(loss))
             batch += 1
+        # Save some of the inference samples at the end of each step
         if logits is not None:
-            helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
+            helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image, save_all=False)
 
 tests.test_train_nn(train_nn)
 
