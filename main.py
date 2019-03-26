@@ -129,7 +129,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     sess.run(tf.global_variables_initializer())
     for epoch in range(epochs):
         print("epoch:"+str(epoch+1))
-        rate_learning = 0.0005/(1.41421356**epoch)
+        rate_learning = 0.0001/(1.41421356**epoch)
         print("rate_learning:"+str(rate_learning))
         batch = 0
         images_validation = []
@@ -167,7 +167,7 @@ def run():
     #  https://www.cityscapes-dataset.com/
 
     batch_size = 20
-    epochs = 5
+    epochs = 10
 
     correct_label = tf.placeholder(tf.float32,[None, None, None, num_classes])
     learning_rate = tf.placeholder(tf.float32)
