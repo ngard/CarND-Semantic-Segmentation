@@ -41,7 +41,7 @@ def load_vgg(sess, vgg_path):
             sess.graph.get_tensor_by_name(vgg_layer7_out_tensor_name))
 tests.test_load_vgg(load_vgg, tf)
 
-def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
+def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes, keep_prob=tf.constant(1.0), enable_extra_dropout=False):
     """
     Create the layers for a fully convolutional network.  Build skip-layers using the vgg layers.
     :param vgg_layer3_out: TF Tensor for VGG Layer 3 output
@@ -59,22 +59,30 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     layer8 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
                               kernel_initializer=kernel_initializer_function,
                               kernel_regularizer=kernel_regularizer_function)
+    if enable_extra_dropout:
+        layer8 = tf.nn.dropout(layer8, keep_prob)
 
-    layer9 = tf.layers.conv2d_transpose(layer8,num_classes, (2,2), (2,2), padding='SAME',
+    layer4_skip = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
+                                   kernel_initializer=kernel_initializer_function,
+                                   kernel_regularizer=kernel_regularizer_function)
+    if enable_extra_dropout:
+        layer4_skip = tf.nn.dropout(layer4_skip, keep_prob)
+    layer9 = tf.layers.conv2d_transpose(layer8,num_classes, 4, (2,2), padding='SAME',
                                         kernel_initializer=kernel_initializer_function,
                                         kernel_regularizer=kernel_regularizer_function) + \
-             tf.layers.conv2d(vgg_layer4_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
-                              kernel_initializer=kernel_initializer_function,
-                              kernel_regularizer=kernel_regularizer_function)
+             layer4_skip
 
-    layer10 = tf.layers.conv2d_transpose(layer9,num_classes, (2,2), (2,2), padding='SAME',
+    layer3_skip = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
+                                   kernel_initializer=kernel_initializer_function,
+                                   kernel_regularizer=kernel_regularizer_function)
+    if enable_extra_dropout:
+        layer3_skip = tf.nn.dropout(layer3_skip, keep_prob)
+    layer10 = tf.layers.conv2d_transpose(layer9,num_classes, 4, (2,2), padding='SAME',
                                          kernel_initializer=kernel_initializer_function,
                                          kernel_regularizer=kernel_regularizer_function) + \
-              tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='SAME', activation=activation_function,
-                               kernel_initializer=kernel_initializer_function,
-                               kernel_regularizer=kernel_regularizer_function)
+              layer3_skip
 
-    return tf.layers.conv2d_transpose(layer10,num_classes, (8,8), (8,8), padding='SAME',
+    return tf.layers.conv2d_transpose(layer10,num_classes, 16, (8,8), padding='SAME',
                                       kernel_initializer=kernel_initializer_function,
                                       kernel_regularizer=kernel_regularizer_function)
 tests.test_layers(layers)
@@ -159,7 +167,7 @@ def run():
     #  https://www.cityscapes-dataset.com/
 
     batch_size = 20
-    epochs = 20
+    epochs = 5
 
     correct_label = tf.placeholder(tf.float32,[None, None, None, num_classes])
     learning_rate = tf.placeholder(tf.float32)
@@ -175,7 +183,7 @@ def run():
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess,vgg_path)
-        last_layer = layers(layer3_out, layer4_out, layer7_out, num_classes)
+        last_layer = layers(layer3_out, layer4_out, layer7_out, num_classes, keep_prob, enable_extra_dropout=True)
         logits, train_op, cross_entropy_loss = optimize(last_layer, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
