@@ -176,10 +176,11 @@ def run():
         # Path to vgg model
         vgg_path = os.path.join(data_dir, 'vgg')
         # Create function to get batches
-        get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
+        get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape, enable_augmentation=True)
 
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
+        # A simple augmentation is implemented in helper.gen_batch_function() as upper
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess,vgg_path)
